@@ -3,11 +3,12 @@ import * as zlib from 'zlib';
 import * as readline from 'readline';
 import * as path from 'path';
 import { Command } from 'commander';
+import { pipeline } from 'stream';
 import { promisify } from 'util';
-import { pipeline } from 'stream/promises';
 
 const program = new Command();
 const access = promisify(fs.access);
+const pipelineAsync = promisify(pipeline);
 
 // Function to check if the file exists and is readable
 const checkFilePath = async (filePath: string): Promise<void> => {
@@ -35,18 +36,17 @@ const readGzipFileLineByLine = async (filePath: string): Promise<void> => {
 
   rl.on('line', (line) => {
     try {
-      JSON.parse(line);
-      // console.log(jsonObject);
+      console.log(line);
     } catch (err) {
       errorCount++;
     }
   });
 
-  await pipeline(fileStream, gzipStream);
+  await pipelineAsync(fileStream, gzipStream);
   rl.close();
 
   if (errorCount > 0) {
-    console.error(`Failed to parse JSON for ${errorCount} lines`);
+    console.error(`Failed line for ${errorCount} lines`);
   }
 
   console.timeEnd('Foo');
@@ -58,9 +58,7 @@ program.requiredOption('-i, --input <string>', 'input GZIP file path');
 program.parse(process.argv);
 
 const options = program.opts();
-const inputFilePath = path.isAbsolute(options.input)
-  ? options.input
-  : path.join(__dirname, options.input);
+const inputFilePath = path.isAbsolute(options.input) ? options.input : path.join(__dirname, options.input);
 
 // Read and process the GZIP file
 readGzipFileLineByLine(inputFilePath).catch(console.error);

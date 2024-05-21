@@ -8,7 +8,6 @@ import { promisify } from 'util';
 const program = new Command();
 const access = promisify(fs.access);
 
-// Function to check if the file exists and is readable
 const checkFilePath = async (filePath: string): Promise<void> => {
   try {
     await access(filePath, fs.constants.R_OK);
@@ -17,7 +16,6 @@ const checkFilePath = async (filePath: string): Promise<void> => {
   }
 };
 
-// Main function to read a GZIP file line-by-line and print each JSON object
 const readGzipFileLineByLine = async (filePath: string): Promise<void> => {
   console.time('Foo')
 
@@ -32,10 +30,9 @@ const readGzipFileLineByLine = async (filePath: string): Promise<void> => {
 
   for await (const line of rl) {
     try {
-      JSON.parse(line);
-     //  console.log(jsonObject);
+      console.log(line);
     } catch (err) {
-      console.error('Failed to parse JSON:', err);
+      console.error('Failed:', err);
     }
   }
   console.timeEnd('Foo')
